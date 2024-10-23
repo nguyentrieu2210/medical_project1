@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\BaseServiceInterface;
+use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
@@ -15,7 +16,7 @@ class BaseService implements BaseServiceInterface
         $this->model = $model;
     }
 
-    public function paginate ($fieldSelects = ['*'], $conditions = [], $relations = [], $fieldSearch = [], $keyword = '', $orderBy = ['id', 'DESC'], $limit = 20) {
+    public function paginate ($fieldSelects = ['*'], $conditions = [], $relations = [], $fieldSearch = [], $keyword = '', $orderBy = ['id', 'DESC'], $limit = 20, $count = []) {
         $query = $this->model->select($fieldSelects);
         if(!empty($relations)) {
             foreach($relations as $relation) {
@@ -34,6 +35,11 @@ class BaseService implements BaseServiceInterface
                 }
             });
         }
+        if(!empty($count)) {
+            foreach($count as $val) {
+                $query = $query->withCount($val);
+            }
+        }
         return $query->orderBy($orderBy[0], $orderBy[1])->paginate($limit);
     }
 
@@ -50,9 +56,9 @@ class BaseService implements BaseServiceInterface
     public function create ($payload) {
         DB::beginTransaction();
         try {
-            $department = $this->model->create($payload);
+            $object = $this->model->create($payload);
             DB::commit();
-            return $department;
+            return $object;
         } catch (\Exception $e) {
             DB::rollBack();
             dd($e->getMessage());
@@ -66,10 +72,10 @@ class BaseService implements BaseServiceInterface
         try {
             $flag = $this->model->where('id', $id)->update($payload);
             if($flag) {
-                $department = $this->model->find($id);
+                $object = $this->model->find($id);
             }
             DB::commit();
-            return $department;
+            return $object;
         } catch (\Exception $e) {
             DB::rollBack();
             dd($e->getMessage());
@@ -90,4 +96,5 @@ class BaseService implements BaseServiceInterface
             return false;
         }
     }
+
 }

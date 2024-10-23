@@ -26,6 +26,7 @@ class User extends Authenticatable
         'cccd',
         'gender',
         'status',
+        'certificate',
         'position_id',
         'department_id',
         'created_at',
@@ -50,4 +51,16 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function department () {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function position () {
+        return $this->belongsTo(Position::class);
+    }
+
+    public function rooms () {
+        return $this->belongsToMany(Room::class, 'user_room', 'user_id', 'room_id');
+    }
 }

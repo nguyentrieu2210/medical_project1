@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Contracts\PositionServiceInterface as PositionService;
+use App\Contracts\MedicationCatalogueServiceInterface as MedicationCatalogueService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StorePositionRequest;
+use App\Http\Requests\StoreMedicationCatalogueRequest;
 use Illuminate\Http\Request;
 
-class PositionController extends Controller
+class MedicationCatalogueController extends Controller
 {
-    protected $positionService;
+    protected $medicationCatalogueService;
 
-    public function __construct(PositionService $positionService)
+    public function __construct(MedicationCatalogueService $medicationCatalogueService)
     {
-        $this->positionService = $positionService;
+        $this->medicationCatalogueService = $medicationCatalogueService;
     }
     //
     public function index (Request $request) {
@@ -24,8 +24,8 @@ class PositionController extends Controller
         if(!is_null($status)) {
             $condition[] = ['status', '=', $status];
         }
-        $positions = $this->positionService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
-        if($positions->count()) {
+        $medicationCatalogues = $this->medicationCatalogueService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['_lft', 'ASC'], $limit);
+        if($medicationCatalogues->count()) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -35,14 +35,14 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'message' => $statusText,
-            'data' => $positions
+            'data' => $medicationCatalogues
         ];
         return $response;
     }
 
     public function show ($id) {
-        $position = $this->positionService->getById($id);
-        if($position) {
+        $medicationCatalogue = $this->medicationCatalogueService->getById($id);
+        if($medicationCatalogue) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -52,15 +52,15 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'title' => $statusText,
-            'data' => $position,
+            'data' => $medicationCatalogue,
         ];
         return $response;
     }
 
-    public function create(StorePositionRequest $request) {
+    public function create(StoreMedicationCatalogueRequest $request) {
         $payload = $request->all();
-        $position = $this->positionService->create($payload);
-        if($position->id) {
+        $medicationCatalogue = $this->medicationCatalogueService->create($payload);
+        if($medicationCatalogue->id) {
             $status = 201;
             $message = 'created';
         }else{
@@ -70,31 +70,31 @@ class PositionController extends Controller
         return [
             'status' => $status,
             'message' => $message,
-            'data' => $position
+            'data' => $medicationCatalogue
         ];
     }
 
-    public function update (StorePositionRequest $request, $id) {
+    public function update (StoreMedicationCatalogueRequest $request, $id) {
         $payload = $request->all();
-        $position = $this->positionService->getById($id);
-        if(!$position) {
+        $medicationCatalogue = $this->medicationCatalogueService->getById($id);
+        if(!$medicationCatalogue) {
             $response = [
                 'status' => 404,
                 'title' => 'Not Found'
             ];
         }else{
-            $position = $this->positionService->update($id, $payload);
+            $medicationCatalogue = $this->medicationCatalogueService->update($id, $payload);
             $response = [
                 'status' => 200,
                 'title' => 'success',
-                'data' => $position
+                'data' => $medicationCatalogue
             ];
         }
         return $response;
     }
 
     public function delete ($id) {
-        $flag = $this->positionService->delete($id);
+        $flag = $this->medicationCatalogueService->delete($id);
         if($flag) {
             $status = 204;
             $message = 'success';
@@ -114,8 +114,13 @@ class PositionController extends Controller
             'name',
             'description',
             'status',
+            'level',
+            'parent_id',
+            '_lft',
+            '_rgt',
             'created_at',
-            'updated_at'
+            'updated_at',
+            'deleted_at'
         ];
     }
 }

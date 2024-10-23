@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('health_insurance_code', 25)->nullable();
             $table->string('guardian_phone', 20)->nullable();
             $table->tinyInteger('gender');//1 - nam, 2 - nữ, 3 - giới tính khác
-            $table->string('keyword', 50)->unique();
             $table->text('description')->nullable();
             $table->timestamps();
         });

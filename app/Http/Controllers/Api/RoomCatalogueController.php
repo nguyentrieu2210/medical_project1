@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Contracts\PositionServiceInterface as PositionService;
+use App\Contracts\RoomCatalogueServiceInterface as RoomCatalogueService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StorePositionRequest;
+use App\Http\Requests\StoreRoomCatalogueRequest;
+use App\Http\Requests\UpdateRoomCatalogueRequest;
 use Illuminate\Http\Request;
 
-class PositionController extends Controller
+class RoomCatalogueController extends Controller
 {
-    protected $positionService;
+    protected $roomCatalogueService;
 
-    public function __construct(PositionService $positionService)
+    public function __construct(RoomCatalogueService $roomCatalogueService)
     {
-        $this->positionService = $positionService;
+        $this->roomCatalogueService = $roomCatalogueService;
     }
     //
     public function index (Request $request) {
@@ -24,8 +25,8 @@ class PositionController extends Controller
         if(!is_null($status)) {
             $condition[] = ['status', '=', $status];
         }
-        $positions = $this->positionService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
-        if($positions->count()) {
+        $roomCatalogues = $this->roomCatalogueService->paginate($this->getFields(), $condition, [], ['code'], $keyword, ['id', 'DESC'], $limit);
+        if($roomCatalogues->count()) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -35,14 +36,14 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'message' => $statusText,
-            'data' => $positions
+            'data' => $roomCatalogues
         ];
         return $response;
     }
 
     public function show ($id) {
-        $position = $this->positionService->getById($id);
-        if($position) {
+        $roomCatalogue = $this->roomCatalogueService->getById($id);
+        if($roomCatalogue) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -52,15 +53,15 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'title' => $statusText,
-            'data' => $position,
+            'data' => $roomCatalogue,
         ];
         return $response;
     }
 
-    public function create(StorePositionRequest $request) {
+    public function create(StoreRoomCatalogueRequest $request) {
         $payload = $request->all();
-        $position = $this->positionService->create($payload);
-        if($position->id) {
+        $roomCatalogue = $this->roomCatalogueService->create($payload);
+        if($roomCatalogue->id) {
             $status = 201;
             $message = 'created';
         }else{
@@ -70,31 +71,31 @@ class PositionController extends Controller
         return [
             'status' => $status,
             'message' => $message,
-            'data' => $position
+            'data' => $roomCatalogue
         ];
     }
 
-    public function update (StorePositionRequest $request, $id) {
+    public function update (UpdateRoomCatalogueRequest $request, $id) {
         $payload = $request->all();
-        $position = $this->positionService->getById($id);
-        if(!$position) {
+        $roomCatalogue = $this->roomCatalogueService->getById($id);
+        if(!$roomCatalogue) {
             $response = [
                 'status' => 404,
                 'title' => 'Not Found'
             ];
         }else{
-            $position = $this->positionService->update($id, $payload);
+            $roomCatalogue = $this->roomCatalogueService->update($id, $payload);
             $response = [
                 'status' => 200,
                 'title' => 'success',
-                'data' => $position
+                'data' => $roomCatalogue
             ];
         }
         return $response;
     }
 
     public function delete ($id) {
-        $flag = $this->positionService->delete($id);
+        $flag = $this->roomCatalogueService->delete($id);
         if($flag) {
             $status = 204;
             $message = 'success';
@@ -111,6 +112,7 @@ class PositionController extends Controller
     private function getFields () {
         return [
             'id',
+            'keyword',
             'name',
             'description',
             'status',

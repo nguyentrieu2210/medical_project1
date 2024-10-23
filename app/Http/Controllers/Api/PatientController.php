@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Contracts\PositionServiceInterface as PositionService;
+use App\Contracts\PatientServiceInterface as PatientService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StorePositionRequest;
+use App\Http\Requests\StorePatientRequest;
 use Illuminate\Http\Request;
 
-class PositionController extends Controller
+class PatientController extends Controller
 {
-    protected $positionService;
+    protected $patientService;
 
-    public function __construct(PositionService $positionService)
+    public function __construct(PatientService $patientService)
     {
-        $this->positionService = $positionService;
+        $this->patientService = $patientService;
     }
     //
     public function index (Request $request) {
@@ -24,8 +24,8 @@ class PositionController extends Controller
         if(!is_null($status)) {
             $condition[] = ['status', '=', $status];
         }
-        $positions = $this->positionService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
-        if($positions->count()) {
+        $patients = $this->patientService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
+        if($patients->count()) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -35,14 +35,14 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'message' => $statusText,
-            'data' => $positions
+            'data' => $patients
         ];
         return $response;
     }
 
     public function show ($id) {
-        $position = $this->positionService->getById($id);
-        if($position) {
+        $patient = $this->patientService->getById($id);
+        if($patient) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -52,15 +52,15 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'title' => $statusText,
-            'data' => $position,
+            'data' => $patient,
         ];
         return $response;
     }
 
-    public function create(StorePositionRequest $request) {
+    public function create(StorePatientRequest $request) {
         $payload = $request->all();
-        $position = $this->positionService->create($payload);
-        if($position->id) {
+        $patient = $this->patientService->create($payload);
+        if($patient->id) {
             $status = 201;
             $message = 'created';
         }else{
@@ -70,31 +70,31 @@ class PositionController extends Controller
         return [
             'status' => $status,
             'message' => $message,
-            'data' => $position
+            'data' => $patient
         ];
     }
 
-    public function update (StorePositionRequest $request, $id) {
+    public function update (StorePatientRequest $request, $id) {
         $payload = $request->all();
-        $position = $this->positionService->getById($id);
-        if(!$position) {
+        $patient = $this->patientService->getById($id);
+        if(!$patient) {
             $response = [
                 'status' => 404,
                 'title' => 'Not Found'
             ];
         }else{
-            $position = $this->positionService->update($id, $payload);
+            $patient = $this->patientService->update($id, $payload);
             $response = [
                 'status' => 200,
                 'title' => 'success',
-                'data' => $position
+                'data' => $patient
             ];
         }
         return $response;
     }
 
     public function delete ($id) {
-        $flag = $this->positionService->delete($id);
+        $flag = $this->patientService->delete($id);
         if($flag) {
             $status = 204;
             $message = 'success';
@@ -112,8 +112,14 @@ class PositionController extends Controller
         return [
             'id',
             'name',
+            'birthday',
+            'address',
+            'phone',
+            'cccd_number',
+            'health_insurance_code',
+            'guardian_phone',
+            'gender',
             'description',
-            'status',
             'created_at',
             'updated_at'
         ];

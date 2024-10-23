@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Contracts\PositionServiceInterface as PositionService;
+use App\Contracts\BedServiceInterface as BedService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StorePositionRequest;
+use App\Http\Requests\StoreBedRequest;
+use App\Http\Requests\UpdateBedRequest;
 use Illuminate\Http\Request;
 
-class PositionController extends Controller
+class BedController extends Controller
 {
-    protected $positionService;
+    protected $bedService;
 
-    public function __construct(PositionService $positionService)
+    public function __construct(BedService $bedService)
     {
-        $this->positionService = $positionService;
+        $this->bedService = $bedService;
     }
     //
     public function index (Request $request) {
@@ -24,8 +25,8 @@ class PositionController extends Controller
         if(!is_null($status)) {
             $condition[] = ['status', '=', $status];
         }
-        $positions = $this->positionService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
-        if($positions->count()) {
+        $beds = $this->bedService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
+        if($beds->count()) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -35,14 +36,14 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'message' => $statusText,
-            'data' => $positions
+            'data' => $beds
         ];
         return $response;
     }
 
     public function show ($id) {
-        $position = $this->positionService->getById($id);
-        if($position) {
+        $bed = $this->bedService->getById($id);
+        if($bed) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -52,15 +53,15 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'title' => $statusText,
-            'data' => $position,
+            'data' => $bed,
         ];
         return $response;
     }
 
-    public function create(StorePositionRequest $request) {
+    public function create(StoreBedRequest $request) {
         $payload = $request->all();
-        $position = $this->positionService->create($payload);
-        if($position->id) {
+        $bed = $this->bedService->create($payload);
+        if($bed->id) {
             $status = 201;
             $message = 'created';
         }else{
@@ -70,31 +71,31 @@ class PositionController extends Controller
         return [
             'status' => $status,
             'message' => $message,
-            'data' => $position
+            'data' => $bed
         ];
     }
 
-    public function update (StorePositionRequest $request, $id) {
+    public function update (UpdateBedRequest $request, $id) {
         $payload = $request->all();
-        $position = $this->positionService->getById($id);
-        if(!$position) {
+        $bed = $this->bedService->getById($id);
+        if(!$bed) {
             $response = [
                 'status' => 404,
                 'title' => 'Not Found'
             ];
         }else{
-            $position = $this->positionService->update($id, $payload);
+            $bed = $this->bedService->update($id, $payload);
             $response = [
                 'status' => 200,
                 'title' => 'success',
-                'data' => $position
+                'data' => $bed
             ];
         }
         return $response;
     }
 
     public function delete ($id) {
-        $flag = $this->positionService->delete($id);
+        $flag = $this->bedService->delete($id);
         if($flag) {
             $status = 204;
             $message = 'success';
@@ -111,9 +112,11 @@ class PositionController extends Controller
     private function getFields () {
         return [
             'id',
-            'name',
-            'description',
+            'code',
+            'price',
             'status',
+            'room_id',
+            'patient_id',
             'created_at',
             'updated_at'
         ];

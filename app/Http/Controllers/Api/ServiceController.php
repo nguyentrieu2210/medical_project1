@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Contracts\PositionServiceInterface as PositionService;
+use App\Contracts\ServiceServiceInterface as ServiceService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StorePositionRequest;
+use App\Http\Requests\StoreServiceRequest;
 use Illuminate\Http\Request;
 
-class PositionController extends Controller
+class ServiceController extends Controller
 {
-    protected $positionService;
+    protected $serviceService;
 
-    public function __construct(PositionService $positionService)
+    public function __construct(ServiceService $serviceService)
     {
-        $this->positionService = $positionService;
+        $this->serviceService = $serviceService;
     }
     //
     public function index (Request $request) {
@@ -24,8 +24,8 @@ class PositionController extends Controller
         if(!is_null($status)) {
             $condition[] = ['status', '=', $status];
         }
-        $positions = $this->positionService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
-        if($positions->count()) {
+        $services = $this->serviceService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
+        if($services->count()) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -35,14 +35,14 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'message' => $statusText,
-            'data' => $positions
+            'data' => $services
         ];
         return $response;
     }
 
     public function show ($id) {
-        $position = $this->positionService->getById($id);
-        if($position) {
+        $service = $this->serviceService->getById($id);
+        if($service) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -52,15 +52,15 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'title' => $statusText,
-            'data' => $position,
+            'data' => $service,
         ];
         return $response;
     }
 
-    public function create(StorePositionRequest $request) {
+    public function create(StoreServiceRequest $request) {
         $payload = $request->all();
-        $position = $this->positionService->create($payload);
-        if($position->id) {
+        $service = $this->serviceService->create($payload);
+        if($service->id) {
             $status = 201;
             $message = 'created';
         }else{
@@ -70,31 +70,31 @@ class PositionController extends Controller
         return [
             'status' => $status,
             'message' => $message,
-            'data' => $position
+            'data' => $service
         ];
     }
 
-    public function update (StorePositionRequest $request, $id) {
+    public function update (StoreServiceRequest $request, $id) {
         $payload = $request->all();
-        $position = $this->positionService->getById($id);
-        if(!$position) {
+        $service = $this->serviceService->getById($id);
+        if(!$service) {
             $response = [
                 'status' => 404,
                 'title' => 'Not Found'
             ];
         }else{
-            $position = $this->positionService->update($id, $payload);
+            $service = $this->serviceService->update($id, $payload);
             $response = [
                 'status' => 200,
                 'title' => 'success',
-                'data' => $position
+                'data' => $service
             ];
         }
         return $response;
     }
 
     public function delete ($id) {
-        $flag = $this->positionService->delete($id);
+        $flag = $this->serviceService->delete($id);
         if($flag) {
             $status = 204;
             $message = 'success';
@@ -113,7 +113,13 @@ class PositionController extends Controller
             'id',
             'name',
             'description',
+            'price',
+            'service_catalogue_id',
+            'detail',
+            'health_insurance_applied',
+            'health_insurance_value',
             'status',
+            'room_catalogue_id',
             'created_at',
             'updated_at'
         ];

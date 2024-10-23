@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Contracts\PositionServiceInterface as PositionService;
+use App\Contracts\RoomServiceInterface as RoomService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StorePositionRequest;
+use App\Http\Requests\StoreRoomRequest;
+use App\Http\Requests\UpdateRoomRequest;
 use Illuminate\Http\Request;
 
-class PositionController extends Controller
+class RoomController extends Controller
 {
-    protected $positionService;
+    protected $roomService;
 
-    public function __construct(PositionService $positionService)
+    public function __construct(RoomService $roomService)
     {
-        $this->positionService = $positionService;
+        $this->roomService = $roomService;
     }
     //
     public function index (Request $request) {
@@ -24,8 +25,8 @@ class PositionController extends Controller
         if(!is_null($status)) {
             $condition[] = ['status', '=', $status];
         }
-        $positions = $this->positionService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
-        if($positions->count()) {
+        $rooms = $this->roomService->paginate($this->getFields(), $condition, ['department', 'roomCatalogue'], ['name', 'description'], $keyword, ['id', 'DESC'], $limit, ['beds']);
+        if($rooms->count()) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -35,14 +36,14 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'message' => $statusText,
-            'data' => $positions
+            'data' => $rooms
         ];
         return $response;
     }
 
     public function show ($id) {
-        $position = $this->positionService->getById($id);
-        if($position) {
+        $room = $this->roomService->getById($id);
+        if($room) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -52,15 +53,15 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'title' => $statusText,
-            'data' => $position,
+            'data' => $room,
         ];
         return $response;
     }
 
-    public function create(StorePositionRequest $request) {
+    public function create(StoreRoomRequest $request) {
         $payload = $request->all();
-        $position = $this->positionService->create($payload);
-        if($position->id) {
+        $room = $this->roomService->create($payload);
+        if($room->id) {
             $status = 201;
             $message = 'created';
         }else{
@@ -70,31 +71,31 @@ class PositionController extends Controller
         return [
             'status' => $status,
             'message' => $message,
-            'data' => $position
+            'data' => $room
         ];
     }
 
-    public function update (StorePositionRequest $request, $id) {
+    public function update (UpdateRoomRequest $request, $id) {
         $payload = $request->all();
-        $position = $this->positionService->getById($id);
-        if(!$position) {
+        $room = $this->roomService->getById($id);
+        if(!$room) {
             $response = [
                 'status' => 404,
                 'title' => 'Not Found'
             ];
         }else{
-            $position = $this->positionService->update($id, $payload);
+            $room = $this->roomService->update($id, $payload);
             $response = [
                 'status' => 200,
                 'title' => 'success',
-                'data' => $position
+                'data' => $room
             ];
         }
         return $response;
     }
 
     public function delete ($id) {
-        $flag = $this->positionService->delete($id);
+        $flag = $this->roomService->delete($id);
         if($flag) {
             $status = 204;
             $message = 'success';
@@ -111,9 +112,11 @@ class PositionController extends Controller
     private function getFields () {
         return [
             'id',
-            'name',
-            'description',
+            'code',
             'status',
+            'room_catalogue_id',
+            'department_id',
+            'status_bed',
             'created_at',
             'updated_at'
         ];

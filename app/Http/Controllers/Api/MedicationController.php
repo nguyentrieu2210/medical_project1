@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Contracts\PositionServiceInterface as PositionService;
+use App\Contracts\MedicationServiceInterface as MedicationService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StorePositionRequest;
+use App\Http\Requests\StoreMedicationRequest;
 use Illuminate\Http\Request;
 
-class PositionController extends Controller
+class MedicationController extends Controller
 {
-    protected $positionService;
+    protected $medicationService;
 
-    public function __construct(PositionService $positionService)
+    public function __construct(MedicationService $medicationService)
     {
-        $this->positionService = $positionService;
+        $this->medicationService = $medicationService;
     }
     //
     public function index (Request $request) {
@@ -24,8 +24,8 @@ class PositionController extends Controller
         if(!is_null($status)) {
             $condition[] = ['status', '=', $status];
         }
-        $positions = $this->positionService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
-        if($positions->count()) {
+        $medications = $this->medicationService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
+        if($medications->count()) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -35,14 +35,14 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'message' => $statusText,
-            'data' => $positions
+            'data' => $medications
         ];
         return $response;
     }
 
     public function show ($id) {
-        $position = $this->positionService->getById($id);
-        if($position) {
+        $medication = $this->medicationService->getById($id);
+        if($medication) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -52,15 +52,16 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'title' => $statusText,
-            'data' => $position,
+            'data' => $medication,
         ];
         return $response;
     }
 
-    public function create(StorePositionRequest $request) {
+    public function create(StoreMedicationRequest $request) {
         $payload = $request->all();
-        $position = $this->positionService->create($payload);
-        if($position->id) {
+        // return $payload;
+        $medication = $this->medicationService->create($payload);
+        if($medication->id) {
             $status = 201;
             $message = 'created';
         }else{
@@ -70,31 +71,31 @@ class PositionController extends Controller
         return [
             'status' => $status,
             'message' => $message,
-            'data' => $position
+            'data' => $medication
         ];
     }
 
-    public function update (StorePositionRequest $request, $id) {
+    public function update (StoreMedicationRequest $request, $id) {
         $payload = $request->all();
-        $position = $this->positionService->getById($id);
-        if(!$position) {
+        $medication = $this->medicationService->getById($id);
+        if(!$medication) {
             $response = [
                 'status' => 404,
                 'title' => 'Not Found'
             ];
         }else{
-            $position = $this->positionService->update($id, $payload);
+            $medication = $this->medicationService->update($id, $payload);
             $response = [
                 'status' => 200,
                 'title' => 'success',
-                'data' => $position
+                'data' => $medication
             ];
         }
         return $response;
     }
 
     public function delete ($id) {
-        $flag = $this->positionService->delete($id);
+        $flag = $this->medicationService->delete($id);
         if($flag) {
             $status = 204;
             $message = 'success';
@@ -112,10 +113,15 @@ class PositionController extends Controller
         return [
             'id',
             'name',
+            'medication_catalogue_id',
+            'price',
+            'measure',
+            'measure_count',
             'description',
             'status',
             'created_at',
-            'updated_at'
+            'updated_at',
+            'deleted_at'
         ];
     }
 }

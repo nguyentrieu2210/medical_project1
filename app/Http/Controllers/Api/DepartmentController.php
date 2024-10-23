@@ -21,7 +21,7 @@ class DepartmentController extends Controller
     public function index (Request $request) {
         $keyword = $request->query('keyword');
         $status = $request->query('status');
-        $limit = $request->query('limit') ?? 20;
+        $limit = $request->query('limit') ?? 1;
         $condition = [];
         if(!is_null($status)) {
             $condition[] = ['status', '=', $status];
@@ -60,6 +60,7 @@ class DepartmentController extends Controller
     }
 
     public function create(StoreDepartmentRequest $request) {
+        $request->validated();
         $payload = $request->all();
         $department = $this->departmentService->create($payload);
         if($department->id) {
@@ -76,7 +77,7 @@ class DepartmentController extends Controller
         ];
     }
 
-    public function update (Request $request, $id) {
+    public function update (StoreDepartmentRequest $request, $id) {
         $payload = $request->all();
         $department = $this->departmentService->getById($id);
         if(!$department) {

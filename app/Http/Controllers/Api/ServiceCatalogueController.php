@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Contracts\PositionServiceInterface as PositionService;
+use App\Contracts\ServiceCatalogueServiceInterface as ServiceCatalogueService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StorePositionRequest;
+use App\Http\Requests\StoreServiceCatalogueRequest;
 use Illuminate\Http\Request;
 
-class PositionController extends Controller
+class ServiceCatalogueController extends Controller
 {
-    protected $positionService;
+    protected $serviceCatalogueService;
 
-    public function __construct(PositionService $positionService)
+    public function __construct(ServiceCatalogueService $serviceCatalogueService)
     {
-        $this->positionService = $positionService;
+        $this->serviceCatalogueService = $serviceCatalogueService;
     }
     //
     public function index (Request $request) {
@@ -24,8 +24,8 @@ class PositionController extends Controller
         if(!is_null($status)) {
             $condition[] = ['status', '=', $status];
         }
-        $positions = $this->positionService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
-        if($positions->count()) {
+        $serviceCatalogues = $this->serviceCatalogueService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
+        if($serviceCatalogues->count()) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -35,14 +35,14 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'message' => $statusText,
-            'data' => $positions
+            'data' => $serviceCatalogues
         ];
         return $response;
     }
 
     public function show ($id) {
-        $position = $this->positionService->getById($id);
-        if($position) {
+        $serviceCatalogue = $this->serviceCatalogueService->getById($id);
+        if($serviceCatalogue) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -52,15 +52,15 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'title' => $statusText,
-            'data' => $position,
+            'data' => $serviceCatalogue,
         ];
         return $response;
     }
 
-    public function create(StorePositionRequest $request) {
+    public function create(StoreServiceCatalogueRequest $request) {
         $payload = $request->all();
-        $position = $this->positionService->create($payload);
-        if($position->id) {
+        $serviceCatalogue = $this->serviceCatalogueService->create($payload);
+        if($serviceCatalogue->id) {
             $status = 201;
             $message = 'created';
         }else{
@@ -70,31 +70,31 @@ class PositionController extends Controller
         return [
             'status' => $status,
             'message' => $message,
-            'data' => $position
+            'data' => $serviceCatalogue
         ];
     }
 
-    public function update (StorePositionRequest $request, $id) {
+    public function update (StoreServiceCatalogueRequest $request, $id) {
         $payload = $request->all();
-        $position = $this->positionService->getById($id);
-        if(!$position) {
+        $serviceCatalogue = $this->serviceCatalogueService->getById($id);
+        if(!$serviceCatalogue) {
             $response = [
                 'status' => 404,
                 'title' => 'Not Found'
             ];
         }else{
-            $position = $this->positionService->update($id, $payload);
+            $serviceCatalogue = $this->serviceCatalogueService->update($id, $payload);
             $response = [
                 'status' => 200,
                 'title' => 'success',
-                'data' => $position
+                'data' => $serviceCatalogue
             ];
         }
         return $response;
     }
 
     public function delete ($id) {
-        $flag = $this->positionService->delete($id);
+        $flag = $this->serviceCatalogueService->delete($id);
         if($flag) {
             $status = 204;
             $message = 'success';

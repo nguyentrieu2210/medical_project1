@@ -2,18 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Contracts\PositionServiceInterface as PositionService;
+use App\Contracts\PermissionServiceInterface as PermissionService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StorePositionRequest;
+use App\Http\Requests\StorePermissionRequest;
+use App\Http\Requests\UpdatePermissionRequest;
 use Illuminate\Http\Request;
 
-class PositionController extends Controller
+class PermissionController extends Controller
 {
-    protected $positionService;
+    protected $permissionService;
 
-    public function __construct(PositionService $positionService)
+    public function __construct(PermissionService $permissionService)
     {
-        $this->positionService = $positionService;
+        $this->permissionService = $permissionService;
     }
     //
     public function index (Request $request) {
@@ -24,8 +25,8 @@ class PositionController extends Controller
         if(!is_null($status)) {
             $condition[] = ['status', '=', $status];
         }
-        $positions = $this->positionService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
-        if($positions->count()) {
+        $permissions = $this->permissionService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
+        if($permissions->count()) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -35,14 +36,14 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'message' => $statusText,
-            'data' => $positions
+            'data' => $permissions
         ];
         return $response;
     }
 
     public function show ($id) {
-        $position = $this->positionService->getById($id);
-        if($position) {
+        $permission = $this->permissionService->getById($id);
+        if($permission) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -52,15 +53,15 @@ class PositionController extends Controller
         $response = [
             'status' => $statusCode,
             'title' => $statusText,
-            'data' => $position,
+            'data' => $permission,
         ];
         return $response;
     }
 
-    public function create(StorePositionRequest $request) {
+    public function create(StorePermissionRequest $request) {
         $payload = $request->all();
-        $position = $this->positionService->create($payload);
-        if($position->id) {
+        $permission = $this->permissionService->create($payload);
+        if($permission->id) {
             $status = 201;
             $message = 'created';
         }else{
@@ -70,31 +71,31 @@ class PositionController extends Controller
         return [
             'status' => $status,
             'message' => $message,
-            'data' => $position
+            'data' => $permission
         ];
     }
 
-    public function update (StorePositionRequest $request, $id) {
+    public function update (UpdatePermissionRequest $request, $id) {
         $payload = $request->all();
-        $position = $this->positionService->getById($id);
-        if(!$position) {
+        $permission = $this->permissionService->getById($id);
+        if(!$permission) {
             $response = [
                 'status' => 404,
                 'title' => 'Not Found'
             ];
         }else{
-            $position = $this->positionService->update($id, $payload);
+            $permission = $this->permissionService->update($id, $payload);
             $response = [
                 'status' => 200,
                 'title' => 'success',
-                'data' => $position
+                'data' => $permission
             ];
         }
         return $response;
     }
 
     public function delete ($id) {
-        $flag = $this->positionService->delete($id);
+        $flag = $this->permissionService->delete($id);
         if($flag) {
             $status = 204;
             $message = 'success';
@@ -112,8 +113,7 @@ class PositionController extends Controller
         return [
             'id',
             'name',
-            'description',
-            'status',
+            'keyword',
             'created_at',
             'updated_at'
         ];
