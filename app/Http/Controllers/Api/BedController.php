@@ -25,7 +25,7 @@ class BedController extends Controller
         if(!is_null($status)) {
             $condition[] = ['status', '=', $status];
         }
-        $beds = $this->bedService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
+        $beds = $this->bedService->paginate($this->getFields(), $condition, ['room', 'patient'], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
         if($beds->count()) {
             $statusCode = 200;
             $statusText = 'success';
@@ -42,7 +42,7 @@ class BedController extends Controller
     }
 
     public function show ($id) {
-        $bed = $this->bedService->getById($id);
+        $bed = $this->bedService->getById($id,[] , ['room', 'patient']);
         if($bed) {
             $statusCode = 200;
             $statusText = 'success';

@@ -24,7 +24,7 @@ class MedicationController extends Controller
         if(!is_null($status)) {
             $condition[] = ['status', '=', $status];
         }
-        $medications = $this->medicationService->paginate($this->getFields(), $condition, [], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
+        $medications = $this->medicationService->paginate($this->getFields(), $condition, ['medicationCatalogue'], ['name', 'description'], $keyword, ['id', 'DESC'], $limit);
         if($medications->count()) {
             $statusCode = 200;
             $statusText = 'success';

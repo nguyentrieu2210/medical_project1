@@ -30,7 +30,8 @@ class UpdateUserRequest extends FormRequest
             'email' => 'required|email|unique:users,email,' . $this->route('user'),
             'password' => 'required|min:6|max:12',
             'position_id' => 'gt:0',
-            'department_id' => 'gt:0'
+            'department_id' => 'gt:0',
+            'address' => 'required'
         ];
     }
 
@@ -47,6 +48,7 @@ class UpdateUserRequest extends FormRequest
             'password.max' => 'Mật khẩu phải có tối đa 12 kí tự',
             'position_id.gt' => 'Bạn cần chọn chức danh cho nhân viên',
             'department_id.gt' => 'Bạn cần chọn khoa cho nhân viên',
+            'address.required' => 'Địa chỉ không được để trống'
         ];
     }
 }

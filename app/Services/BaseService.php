@@ -48,9 +48,14 @@ class BaseService implements BaseServiceInterface
         return $this->model->all();
     }
 
-    public function getById($id, $count = [])
+    public function getById($id, $count = [], $relations = [])
     {
         $query = $this->model;
+        if(!empty($relations)) {
+            foreach($relations as $relation) {
+                $query = $query->with($relation);
+            }
+        }
         if(!empty($count)) {
             foreach($count as $val) {
                 $query = $query->withCount($val);

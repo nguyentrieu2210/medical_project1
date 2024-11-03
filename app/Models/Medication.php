@@ -22,4 +22,8 @@ class Medication extends Model
         'updated_at',
         'deleted_at'
     ];
+
+    public function medicationCatalogue () {
+        return $this->belongsTo(MedicationCatalogue::class, 'medication_catalogue_id', 'id');
+    }
 }

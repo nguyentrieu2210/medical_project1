@@ -24,6 +24,6 @@ class Bed extends Model
     }
 
     public function patient () {
-        return $this->hasOne(Patient::class, 'patient_id', 'id');
+        return $this->hasOne(Patient::class, 'id', 'patient_id');
     }
 }
