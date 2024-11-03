@@ -48,9 +48,15 @@ class BaseService implements BaseServiceInterface
         return $this->model->all();
     }
 
-    public function getById($id)
+    public function getById($id, $count = [])
     {
-        return $this->model->find($id);
+        $query = $this->model;
+        if(!empty($count)) {
+            foreach($count as $val) {
+                $query = $query->withCount($val);
+            }
+        }
+        return $query->find($id);
     }
 
     public function create ($payload) {

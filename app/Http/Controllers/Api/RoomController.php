@@ -42,7 +42,7 @@ class RoomController extends Controller
     }
 
     public function show ($id) {
-        $room = $this->roomService->getById($id);
+        $room = $this->roomService->getById($id, ['beds']);
         if($room) {
             $statusCode = 200;
             $statusText = 'success';

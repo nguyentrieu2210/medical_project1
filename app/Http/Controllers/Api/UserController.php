@@ -25,7 +25,7 @@ class UserController extends Controller
         if(!is_null($status)) {
             $condition[] = ['status', '=', $status];
         }
-        $users = $this->userService->paginate($this->getFields(), $condition, ['department', 'position'], ['name', 'email', 'address', 'phone', 'cccd'], $keyword, ['id', 'DESC'], $limit);
+        $users = $this->userService->paginate($this->getFields(), $condition, ['department', 'position', 'rooms'], ['name', 'email', 'address', 'phone', 'cccd'], $keyword, ['id', 'DESC'], $limit);
         if($users->count()) {
             $statusCode = 200;
             $statusText = 'success';
