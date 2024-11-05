@@ -32,12 +32,17 @@ class UserService extends BaseService implements UserServiceInterface
     {
         DB::beginTransaction();
         try {
-            $roomIds = $payload['room_ids'];
-            unset($payload['room_ids']);
+            $roomIds = [];
+            if(isset($payload['room_ids'])) {
+                $roomIds = $payload['room_ids'];
+                unset($payload['room_ids']);
+            }
             $flag = $this->model->where('id', $id)->update($payload);
             if($flag) {
                 $object = $this->model->find($id);
-                $object->rooms()->sync($roomIds);
+                if(!empty($roomIds)) {
+                    $object->rooms()->sync($roomIds);
+                }
             }
             DB::commit();
             return $object;
