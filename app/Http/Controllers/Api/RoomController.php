@@ -25,7 +25,7 @@ class RoomController extends Controller
         if(!is_null($status)) {
             $condition[] = ['status', '=', $status];
         }
-        $rooms = $this->roomService->paginate($this->getFields(), $condition, ['department', 'roomCatalogue'], ['name', 'description'], $keyword, ['id', 'DESC'], $limit, ['beds']);
+        $rooms = $this->roomService->paginate($this->getFields(), $condition, ['department', 'roomCatalogue', 'users'], ['name', 'description'], $keyword, ['id', 'DESC'], $limit, ['beds']);
         if($rooms->count()) {
             $statusCode = 200;
             $statusText = 'success';
@@ -42,7 +42,7 @@ class RoomController extends Controller
     }
 
     public function show ($id) {
-        $room = $this->roomService->getById($id, ['beds']);
+        $room = $this->roomService->getById($id, ['beds'], ['users']);
         if($room) {
             $statusCode = 200;
             $statusText = 'success';

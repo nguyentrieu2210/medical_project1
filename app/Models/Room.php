@@ -31,4 +31,8 @@ class Room extends Model
     public function beds () {
         return $this->hasMany(Bed::class, 'room_id', 'id');
     }
+
+    public function users () {
+        return $this->belongsToMany(User::class, 'user_room');
+    }
 }

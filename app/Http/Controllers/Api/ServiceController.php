@@ -41,7 +41,7 @@ class ServiceController extends Controller
     }
 
     public function show ($id) {
-        $service = $this->serviceService->getById($id);
+        $service = $this->serviceService->getById($id, [], ['serviceCatalogue', 'roomCatalogue']);
         if($service) {
             $statusCode = 200;
             $statusText = 'success';

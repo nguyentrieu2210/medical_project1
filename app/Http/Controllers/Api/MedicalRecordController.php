@@ -2,31 +2,33 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Contracts\RoomCatalogueServiceInterface as RoomCatalogueService;
+use App\Contracts\MedicalRecordServiceInterface as MedicalRecordService;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreRoomCatalogueRequest;
-use App\Http\Requests\UpdateRoomCatalogueRequest;
 use Illuminate\Http\Request;
 
-class RoomCatalogueController extends Controller
+class MedicalRecordController extends Controller
 {
-    protected $roomCatalogueService;
+    protected $medicalRecordService;
 
-    public function __construct(RoomCatalogueService $roomCatalogueService)
+    public function __construct(MedicalRecordService $medicalRecordService)
     {
-        $this->roomCatalogueService = $roomCatalogueService;
+        $this->medicalRecordService = $medicalRecordService;
     }
     //
     public function index (Request $request) {
         $keyword = $request->query('keyword');
         $status = $request->query('status');
         $limit = $request->query('limit') ?? 1;
+        $roomId = $request->query('room_id');
         $condition = [];
         if(!is_null($status)) {
             $condition[] = ['status', '=', $status];
         }
-        $roomCatalogues = $this->roomCatalogueService->paginate($this->getFields(), $condition, [], ['code'], $keyword, ['id', 'DESC'], $limit);
-        if($roomCatalogues->count()) {
+        if(!is_null($roomId)) {
+            $condition[] = ['room_id', '=', $roomId];
+        }
+        $medicalRecords = $this->medicalRecordService->paginate($this->getFields(), $condition, ['patient', 'services'], [], $keyword, ['visit_date', 'ASC'], $limit);
+        if($medicalRecords->count()) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -36,14 +38,14 @@ class RoomCatalogueController extends Controller
         $response = [
             'status' => $statusCode,
             'message' => $statusText,
-            'data' => $roomCatalogues
+            'data' => $medicalRecords
         ];
         return $response;
     }
 
     public function show ($id) {
-        $roomCatalogue = $this->roomCatalogueService->getById($id, [], ['rooms']);
-        if($roomCatalogue) {
+        $medicalRecord = $this->medicalRecordService->getById($id);
+        if($medicalRecord) {
             $statusCode = 200;
             $statusText = 'success';
         }else{
@@ -53,15 +55,15 @@ class RoomCatalogueController extends Controller
         $response = [
             'status' => $statusCode,
             'title' => $statusText,
-            'data' => $roomCatalogue,
+            'data' => $medicalRecord,
         ];
         return $response;
     }
 
-    public function create(StoreRoomCatalogueRequest $request) {
+    public function create(Request $request) {
         $payload = $request->all();
-        $roomCatalogue = $this->roomCatalogueService->create($payload);
-        if($roomCatalogue->id) {
+        $medicalRecord = $this->medicalRecordService->create($payload);
+        if($medicalRecord->id) {
             $status = 201;
             $message = 'created';
         }else{
@@ -71,31 +73,40 @@ class RoomCatalogueController extends Controller
         return [
             'status' => $status,
             'message' => $message,
-            'data' => $roomCatalogue
+            'data' => $medicalRecord
         ];
     }
 
-    public function update (UpdateRoomCatalogueRequest $request, $id) {
+    public function createPivot (Request $request) {
         $payload = $request->all();
-        $roomCatalogue = $this->roomCatalogueService->getById($id);
-        if(!$roomCatalogue) {
+        $flag = $this->medicalRecordService->createPivot($payload);
+        return [
+            'status' => $flag ? 201 : 500,
+            'message' => $flag ? 'created' : 'server error'
+        ];
+    }
+
+    public function update (Request $request, $id) {
+        $payload = $request->all();
+        $medicalRecord = $this->medicalRecordService->getById($id);
+        if(!$medicalRecord) {
             $response = [
                 'status' => 404,
                 'title' => 'Not Found'
             ];
         }else{
-            $roomCatalogue = $this->roomCatalogueService->update($id, $payload);
+            $medicalRecord = $this->medicalRecordService->update($id, $payload);
             $response = [
                 'status' => 200,
                 'title' => 'success',
-                'data' => $roomCatalogue
+                'data' => $medicalRecord
             ];
         }
         return $response;
     }
 
     public function delete ($id) {
-        $flag = $this->roomCatalogueService->delete($id);
+        $flag = $this->medicalRecordService->delete($id);
         if($flag) {
             $status = 204;
             $message = 'success';
@@ -111,13 +122,16 @@ class RoomCatalogueController extends Controller
 
     private function getFields () {
         return [
-            'id',
-            'keyword',
-            'name',
-            'description',
-            'status',
-            'created_at',
-            'updated_at'
+            'patient_id',
+            'user_id',
+            'room_id',
+            'visit_date',
+            'diagnosis',
+            'notes',
+            'apointment_date',
+            'is_inpatient',
+            'inpatient_detail',
+            'status'
         ];
     }
 }

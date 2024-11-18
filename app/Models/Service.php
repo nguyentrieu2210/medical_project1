@@ -22,4 +22,12 @@ class Service extends Model
         'created_at',
         'updated_at'
     ];
+
+    public function serviceCatalogue () {
+        return $this->belongsTo(ServiceCatalogue::class, 'service_catalogue_id', 'id');
+    }
+
+    public function roomCatalogue() {
+        return $this->belongsTo(RoomCatalogue::class, 'room_catalogue_id', 'id');
+    }
 }

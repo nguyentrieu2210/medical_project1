@@ -19,4 +19,8 @@ class RoomCatalogue extends Model
         'created_at',
         'updated_at'
     ];
+
+    public function rooms () {
+        return $this->hasMany(Room::class, 'room_catalogue_id', 'id');
+    }
 }

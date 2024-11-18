@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\BedController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\DepartmentController;
+use App\Http\Controllers\Api\MedicalRecordController;
 use App\Http\Controllers\Api\MedicationCatalogueController;
 use App\Http\Controllers\Api\MedicationController;
 use App\Http\Controllers\Api\PatientController;
@@ -88,6 +89,12 @@ Route::prefix('patients')->name('patients.')->group(function() {
     // Route::put('/{patient}', [PatientController::class, 'update'])->name('update-put');
     Route::patch('/{patient}', [PatientController::class, 'update'])->name('update-patch');
     Route::delete('/{patient}', [PatientController::class, 'delete'])->name('delete');
+});
+
+Route::prefix('medicalRecords')->name('medicalRecords.')->group(function() {
+    Route::get('/', [MedicalRecordController::class, 'index'])->name('index');
+    Route::post('/create', [MedicalRecordController::class, 'create'])->name('create');
+    Route::post('/createPivot', [MedicalRecordController::class, 'createPivot'])->name('createPivot');
 });
 
 Route::prefix('beds')->name('beds.')->group(function() {
