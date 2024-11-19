@@ -122,6 +122,7 @@ class MedicalRecordController extends Controller
 
     private function getFields () {
         return [
+            'id',
             'patient_id',
             'user_id',
             'room_id',
