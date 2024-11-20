@@ -29,6 +29,14 @@ class MedicalRecord extends Model
     }
 
     public function services() {
-        return $this->belongsToMany(Service::class, 'medical_record_service', 'medical_record_id', 'service_id')->withPivot('service_name', 'result_details')->withTimestamps();  
+        return $this->belongsToMany(Service::class, 'medical_record_service', 'medical_record_id', 'service_id')->withPivot('service_name', 'result_details', 'room_id', 'patient_id', 'id')->withTimestamps();  
+    }
+
+    public function user () {
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function medications () {
+        return $this->belongsToMany(Medication::class, 'medical_record_medication', 'medical_record_id', 'medication_id')->withPivot('name', 'dosage', 'measure', 'description')->withTimestamps();  
     }
 }

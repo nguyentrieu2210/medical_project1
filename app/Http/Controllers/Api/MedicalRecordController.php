@@ -14,7 +14,8 @@ class MedicalRecordController extends Controller
     {
         $this->medicalRecordService = $medicalRecordService;
     }
-    //
+
+    //Bệnh nhân chờ khám
     public function index (Request $request) {
         $keyword = $request->query('keyword');
         $status = $request->query('status');
@@ -39,6 +40,60 @@ class MedicalRecordController extends Controller
             'status' => $statusCode,
             'message' => $statusText,
             'data' => $medicalRecords
+        ];
+        return $response;
+    }
+
+    //Bệnh nhân chờ kết luận 
+    public function getPatientWaitDiagnosis (Request $request) {
+        return $this->getMedicalRecordList($request, $status = 0);
+    }
+
+    //bệnh nhân chờ thực hiện các dịch vụ
+    public function getPatientWaitTest (Request $request) {
+        return $this->getMedicalRecordList($request);
+    }
+
+    public function getMedicalRecordList ($request, $status = 1) {
+        $id = $request->query('id');
+        $keyword = $request->query('keyword');
+        $limit = $request->query('limit') ?? 1;
+        $roomId = $request->query('room_id');
+        if(!is_null($id)) {
+            $conditions[] = ['id', '=', $id];
+        }
+        $conditions[] = ['diagnosis', '=', null];
+        $conditions[] = ['status', '=', 1];
+        if(!$status) {
+            $conditions[] = ['room_id', '=', $roomId];
+        }
+        $relations = [];
+        $relations['user'] = [];
+        $relations['patient'][] = [
+            'keyword' => !is_null($keyword) ? $keyword : ''
+        ];
+        if($status) {
+            $relations['services'][] = ['result_details', '=', null];
+            $relations['services'][] = ['room_id', '=', $roomId];
+        }else{
+            $relations['services'][] = ['result_details', '<>', null];
+        }
+        $medicalRecords = $this->medicalRecordService->getMedicalRecordList($this->getFields(), $conditions, $relations, ['name', 'cccd_number'], ['updated_at', 'ASC'], $limit, $status);
+        $data = $medicalRecords;
+        if(!is_null($id)) {
+            $data = $data[0];
+        }
+        if($medicalRecords->count()) {
+            $statusCode = 200;
+            $statusText = 'success';
+        }else{
+            $statusCode = 204;
+            $statusText = "No Data";
+        }
+        $response = [
+            'status' => $statusCode,
+            'message' => $statusText,
+            'data' => $data
         ];
         return $response;
     }
@@ -80,6 +135,16 @@ class MedicalRecordController extends Controller
     public function createPivot (Request $request) {
         $payload = $request->all();
         $flag = $this->medicalRecordService->createPivot($payload);
+        return [
+            'status' => $flag ? 201 : 500,
+            'message' => $flag ? 'created' : 'server error'
+        ];
+    }
+
+    //bác sĩ phòng khám xử lý xong 1 bệnh nhân từ a-z
+    public function save (Request $request) {
+        $payload = $request->all();
+        $flag = $this->medicalRecordService->save($payload);
         return [
             'status' => $flag ? 201 : 500,
             'message' => $flag ? 'created' : 'server error'

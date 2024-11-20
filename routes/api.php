@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\DepartmentController;
 use App\Http\Controllers\Api\MedicalRecordController;
+use App\Http\Controllers\Api\MedicalRecordServiceController;
 use App\Http\Controllers\Api\MedicationCatalogueController;
 use App\Http\Controllers\Api\MedicationController;
 use App\Http\Controllers\Api\PatientController;
@@ -94,7 +95,14 @@ Route::prefix('patients')->name('patients.')->group(function() {
 Route::prefix('medicalRecords')->name('medicalRecords.')->group(function() {
     Route::get('/', [MedicalRecordController::class, 'index'])->name('index');
     Route::post('/create', [MedicalRecordController::class, 'create'])->name('create');
+    Route::post('/save', [MedicalRecordController::class, 'save'])->name('save');
     Route::post('/createPivot', [MedicalRecordController::class, 'createPivot'])->name('createPivot');
+    Route::get('/list', [MedicalRecordController::class, 'getPatientWaitTest'])->name('getPatientWaitTest');
+    Route::get('/waitDiagnosis', [MedicalRecordController::class, 'getPatientWaitDiagnosis'])->name('getPatientWaitDiagnosis');
+});
+
+Route::prefix('medicalRecordService')->name('medicalRecordService.')->group(function() {
+    Route::post('/update', [MedicalRecordServiceController::class, 'update'])->name('update');
 });
 
 Route::prefix('beds')->name('beds.')->group(function() {

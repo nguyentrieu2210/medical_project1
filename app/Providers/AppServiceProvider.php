@@ -43,6 +43,7 @@ class AppServiceProvider extends ServiceProvider
             'App\Contracts\MedicationCatalogueServiceInterface' => 'App\Services\MedicationCatalogueService',
             'App\Contracts\MedicationServiceInterface' => 'App\Services\MedicationService',
             'App\Contracts\MedicalRecordServiceInterface' => 'App\Services\MedicalRecordService',
+            'App\Contracts\MedicalRecordServiceServiceInterface' => 'App\Services\MedicalRecordServiceService',
         ];
         foreach($bindings as $interface => $implementation) {
             $this->app->bind($interface, $implementation);
