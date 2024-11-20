@@ -90,6 +90,7 @@ Route::prefix('patients')->name('patients.')->group(function() {
     // Route::put('/{patient}', [PatientController::class, 'update'])->name('update-put');
     Route::patch('/{patient}', [PatientController::class, 'update'])->name('update-patch');
     Route::delete('/{patient}', [PatientController::class, 'delete'])->name('delete');
+    Route::get('/history/{patient}', [PatientController::class, 'getHistory'])->name('history');
 });
 
 Route::prefix('medicalRecords')->name('medicalRecords.')->group(function() {

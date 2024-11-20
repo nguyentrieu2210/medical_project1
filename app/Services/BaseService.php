@@ -64,6 +64,24 @@ class BaseService implements BaseServiceInterface
         return $query->find($id);
     }
 
+    public function getHistory($id, $relations = [])
+    {
+        $query = $this->model;
+        if(!empty($relations)) {
+            foreach($relations as $key => $subRelations) {
+                $query = $query->with([$key => function($query) use ($key, $subRelations) {
+                    if($key == 'medicalRecords') {
+                        $query->where('diagnosis', '<>', null);
+                    }
+                    for($i = 0; $i < count($subRelations); $i++) {
+                        $query->with($subRelations[$i]);
+                    }
+                }]);
+            }
+        }
+        return $query->find($id);
+    }
+
     public function create ($payload) {
         DB::beginTransaction();
         try {

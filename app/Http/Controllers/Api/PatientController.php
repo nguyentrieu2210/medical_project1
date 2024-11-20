@@ -40,6 +40,26 @@ class PatientController extends Controller
         return $response;
     }
 
+    public function getHistory ($id) {
+        $relations = [
+            'medicalRecords' => ['services', 'user', 'medications'],
+        ];
+        $patient = $this->patientService->getHistory($id, $relations);
+        if($patient) {
+            $statusCode = 200;
+            $statusText = 'success';
+        }else{
+            $statusCode = 404;
+            $statusText = 'Not Found';
+        }
+        $response = [
+            'status' => $statusCode,
+            'title' => $statusText,
+            'data' => $patient,
+        ];
+        return $response;
+    }
+
     public function show ($id) {
         $patient = $this->patientService->getById($id);
         if($patient) {
